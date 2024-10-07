@@ -878,6 +878,53 @@ app.get('/ngl-spam', (req, res) => {
   spamNgl(username, message, messageCount);
 });
 
+//img uploader
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('/upload2', async (req, res) => {
+  const imageUrl = req.query.image;
+
+  if (!imageUrl) {
+    return res.status(400).send('No image provided.');
+  }
+
+  const filename = `${Date.now()}-${path.basename(imageUrl)}`;
+  const filePath = path.join(__dirname, 'uploads', filename);
+
+  if (imageUrl.startsWith('http')) {
+    try {
+      const response = await axios({
+        method: 'get',
+        url: imageUrl,
+        responseType: 'stream',
+      });
+
+      response.data.pipe(fs.createWriteStream(filePath));
+
+      response.data.on('end', () => {
+        res.json({ imageUrl: `${req.protocol}://${req.get('host')}/uploads/${filename}` });
+      });
+
+      response.data.on('error', (err) => {
+        res.status(500).send(`Error fetching the image: ${err.message}`);
+      });
+    } catch (err) {
+      res.status(500).send(`Error fetching the image: ${err.message}`);
+    }
+  } else {
+    fs.copyFile(imageUrl, filePath, (err) => {
+      if (err) {
+        return res.status(500).send(`Error saving the local image: ${err.message}`);
+      }
+      res.json({ imageUrl: `${req.protocol}://${req.get('host')}/uploads/${filename}` });
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
