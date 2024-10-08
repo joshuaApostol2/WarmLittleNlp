@@ -918,6 +918,110 @@ app.get('/upload2', async (req, res) => {
   }
 });
 
+//blackbox gpt4o
+app.get('/blackbox/model/gpt4o', async (req, res) => {
+  const { prompt } = req.query;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  const requestData = {
+    messages: [
+      {
+        role: 'system',
+        content: 'I am GPT-4o, here to assist you.'
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    id: '',
+    previewToken: null,
+    userId: null,
+    codeModelMode: true,
+    agentMode: {},
+    trendingAgentMode: {},
+    isMicMode: false,
+    userSystemPrompt: null,
+    maxTokens: 1024,
+    playgroundTopP: 0.9,
+    playgroundTemperature: 0.5,
+    isChromeExt: false,
+    githubToken: null,
+    clickedAnswer2: false,
+    clickedAnswer3: false,
+    clickedForceWebSearch: false,
+    visitFromDelta: false,
+    mobileClient: false,
+    userSelectedModel: 'gpt-4o'
+  };
+
+  try {
+    const response = await axios.post('https://www.blackbox.ai/api/chat', requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    let cleanData = response.data.replace(/\$@\$.+?\$@\$/g, '');
+    res.json({ response: cleanData });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch Blackbox AI' });
+  }
+});
+
+//blackbox pro
+app.get('/blackbox/model/blackboxai-pro', async (req, res) => {
+  const { prompt } = req.query;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  const requestData = {
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    id: 'jNl98gC',
+    previewToken: null,
+    userId: null,
+    codeModelMode: true,
+    agentMode: {},
+    trendingAgentMode: {},
+    isMicMode: false,
+    userSystemPrompt: null,
+    maxTokens: 1024,
+    playgroundTopP: 0.9,
+    playgroundTemperature: 0.5,
+    isChromeExt: false,
+    githubToken: null,
+    clickedAnswer2: false,
+    clickedAnswer3: false,
+    clickedForceWebSearch: false,
+    visitFromDelta: false,
+    mobileClient: false,
+    userSelectedModel: 'blackboxai-pro'
+  };
+
+  try {
+    const response = await axios.post('https://www.blackbox.ai/api/chat', requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    let cleanData = response.data.replace(/\$@\$.+?\$@\$/g, '');
+    res.json({ response: cleanData });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch Blackbox AI' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
