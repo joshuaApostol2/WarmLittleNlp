@@ -350,39 +350,32 @@ app.get('/nashbot', async (req, res) => {
 
 //roasted ai
 app.get('/roasted/ai', async (req, res) => {
-  const userMessage = req.query.prompt;
+  const prompt = req.query.prompt;
 
-  if (!userMessage) {
-    return res.status(400).json({ error: 'Prompt is required' });
+  if (!prompt) {
+    return res.status(400).send('Please provide a prompt.');
   }
 
-  const history = [{ role: "assistant", content: "Hello there. I'm here to roast you." }];
-
   const url = 'https://roastedby.ai/api/generate';
-
   const requestData = {
     userMessage: {
       role: 'user',
-      content: userMessage,
+      content: prompt
     },
-    history: history,
-    style: 'default',
-  };
-
-  const headers = {
-    'Content-Type': 'application/json',
+    history: [],
+    style: 'adult'
   };
 
   try {
-    const response = await axios.post(url, requestData, { headers });
+    const response = await axios.post(url, requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-    if (response.data && response.data.content) {
-      return res.json({ response: response.data.content });
-    } else {
-      return res.status(500).json({ error: 'Unexpected response structure' });
-    }
+    res.send(response.data.content);
   } catch (error) {
-    return res.status(500).json({ error: error.response ? error.response.data : error.message });
+    res.status(500).send(`Error: ${error.message}`);
   }
 });
 
