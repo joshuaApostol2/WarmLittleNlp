@@ -1022,6 +1022,157 @@ app.get('/blackbox/model/blackboxai-pro', async (req, res) => {
   }
 });
 
+//gpt4o
+app.get('/gpt4o', async (req, res) => {
+  const { prompt } = req.query;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  const data = JSON.stringify({
+    messageList: [
+      {
+        senderType: "BOT",
+        content: "Hi there! How can I help you today?"
+      },
+      {
+        type: "TEXT",
+        content: prompt,
+        senderType: "USER",
+        files: []
+      }
+    ],
+    fileIds: [],
+    threadId: "thread_lGY4BEYXStiAR2jpPAnOq2kF"
+  });
+
+  const config = {
+    method: 'POST',
+    url: 'https://markbot-10923.chipp.ai/api/openai/chat',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36',
+      'Accept-Encoding': 'gzip, deflate, br, zstd',
+      'Content-Type': 'application/json',
+      'sec-ch-ua-platform': '"Android"',
+      'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+      'sec-ch-ua-mobile': '?1',
+      'Origin': 'https://markbot-10923.chipp.ai',
+      'Sec-Fetch-Site': 'same-origin',
+      'Sec-Fetch-Mode': 'cors',
+      'Sec-Fetch-Dest': 'empty',
+      'Referer': 'https://markbot-10923.chipp.ai/',
+      'Accept-Language': 'en-US,en;q=0.9,fil;q=0.8'
+    },
+    data: data
+  };
+
+  try {
+    const response = await axios.request(config);
+    const message = response.data; 
+    res.json({ response: message });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch data from Markbot API' });
+  }
+});
+
+//blackbox gemini
+app.get('/blackbox/model/gemini-pro', async (req, res) => {
+  const { prompt } = req.query;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  const requestData = {
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    id: 'nebblEx',
+    previewToken: null,
+    userId: null,
+    codeModelMode: true,
+    agentMode: {},
+    trendingAgentMode: {},
+    isMicMode: false,
+    userSystemPrompt: null,
+    maxTokens: 1024,
+    playgroundTopP: 0.9,
+    playgroundTemperature: 0.5,
+    isChromeExt: false,
+    githubToken: null,
+    clickedAnswer2: false,
+    clickedAnswer3: false,
+    clickedForceWebSearch: false,
+    visitFromDelta: false,
+    mobileClient: false,
+    userSelectedModel: 'gemini-pro'
+  };
+
+  try {
+    const response = await axios.post('https://www.blackbox.ai/api/chat', requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.json({ response: response.data });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch data from Blackbox AI' });
+  }
+});
+
+app.get('/blackbox/model/claude-sonnet-3.5', async (req, res) => {
+  const { prompt } = req.query;
+
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  const requestData = {
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    id: 'qw3aPpH',
+    previewToken: null,
+    userId: null,
+    codeModelMode: true,
+    agentMode: {},
+    trendingAgentMode: {},
+    isMicMode: false,
+    userSystemPrompt: null,
+    maxTokens: 1024,
+    playgroundTopP: 0.9,
+    playgroundTemperature: 0.5,
+    isChromeExt: false,
+    githubToken: null,
+    clickedAnswer2: false,
+    clickedAnswer3: false,
+    clickedForceWebSearch: false,
+    visitFromDelta: false,
+    mobileClient: false,
+    userSelectedModel: 'claude-sonnet-3.5'
+  };
+
+  try {
+    const response = await axios.post('https://www.blackbox.ai/api/chat', requestData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.json({ response: response.data });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch data from Blackbox AI' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
