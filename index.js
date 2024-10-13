@@ -148,11 +148,7 @@ app.get('/Mixtral', async (req, res) => {
 
 //imgur
 const isValidUrl = (string) => {
-  try {
-    return isUrl(string);
-  } catch (err) {
-    return false;
-  }
+  return /^https?:\/\/[^\s$.?#].[^\s]*$/.test(string);
 };
 
 app.get('/upload', async (req, res) => {
