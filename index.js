@@ -822,8 +822,13 @@ async function sendSpam(user, message) {
     const url = 'https://ngl.link/api/submit';
     const payload = { username: user, question: message, deviceId: "" };
     const headers = { 'Content-Type': 'application/json' };
-    const response = await axios.post(url, payload, { headers });
-    return response.status;
+
+    try {
+        const response = await axios.post(url, payload, { headers });
+        return response.status;
+    } catch (error) {
+        return error.response ? error.response.status : 500;
+    }
 }
 
 app.get('/ngl-spam', (req, res) => {
@@ -839,17 +844,27 @@ app.get('/ngl-spam', (req, res) => {
     }
 
     let count = 0;
+    let isResponseSent = false;
+
     const interval = setInterval(async () => {
         if (count < messageCount) {
             const status = await sendSpam(username, message);
-            console.log(`Message sent with status code: ${status}`);
+            if (status === 429) {
+                if (!isResponseSent) {
+                    clearInterval(interval);
+                    isResponseSent = true;
+                    return res.status(429).send('Too many requests. Please try again later.');
+                }
+            }
             count++;
         } else {
             clearInterval(interval);
+            if (!isResponseSent) {
+                isResponseSent = true;
+                res.send(`Finished sending ${messageCount} messages to ${username}.`);
+            }
         }
     }, 2000);
-
-    res.send(`Started spamming NGL to ${username} with message: "${message}" for ${messageCount} times.`);
 });
 
 //img uploader
