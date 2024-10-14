@@ -818,55 +818,38 @@ app.get('/quote', async (req, res) => {
 });
 
 //ngl spam
-async function sendNglMessage(username, message) {
-  const url = 'https://ngl.link/api/submit';
-  const requestData = {
-    username,
-    question: message,
-    deviceId: ''
-  };
-
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'Accept': '*/*',
-    'X-Requested-With': 'XMLHttpRequest'
-  };
-
-  try {
-    await axios.post(url, qs.stringify(requestData), { headers });
-  } catch (error) {
-  }
-}
-
-function spamNgl(username, message, amount) {
-  let count = 0;
-
-  function spam() {
-    if (count < amount) {
-      sendNglMessage(username, message);
-      count++;
-      const interval = Math.random() * 1000 + 1000;
-      setTimeout(spam, interval);
-    }
-  }
-
-  spam();
+async function sendSpam(user, message) {
+    const url = 'https://ngl.link/api/submit';
+    const payload = { username: user, question: message, deviceId: "" };
+    const headers = { 'Content-Type': 'application/json' };
+    const response = await axios.post(url, payload, { headers });
+    return response.status;
 }
 
 app.get('/ngl-spam', (req, res) => {
-  const { username, message, amount } = req.query;
-  
-  if (!username || !message || !amount) {
-    return res.status(400).send('Username, message, and amount are required.');
-  }
+    const { username, message, amount } = req.query;
 
-  const messageCount = parseInt(amount, 10);
-  if (isNaN(messageCount) || messageCount <= 0) {
-    return res.status(400).send('Amount must be a positive number.');
-  }
+    if (!username || !message || !amount) {
+        return res.status(400).send('Username, message, and amount are required.');
+    }
 
-  res.send(`Started spamming NGL to ${username} with message: "${message}" for ${messageCount} times.`);
-  spamNgl(username, message, messageCount);
+    const messageCount = parseInt(amount, 10);
+    if (isNaN(messageCount) || messageCount <= 0) {
+        return res.status(400).send('Amount must be a positive number.');
+    }
+
+    let count = 0;
+    const interval = setInterval(async () => {
+        if (count < messageCount) {
+            const status = await sendSpam(username, message);
+            console.log(`Message sent with status code: ${status}`);
+            count++;
+        } else {
+            clearInterval(interval);
+        }
+    }, 2000);
+
+    res.send(`Started spamming NGL to ${username} with message: "${message}" for ${messageCount} times.`);
 });
 
 //img uploader
