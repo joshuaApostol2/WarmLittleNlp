@@ -1239,6 +1239,42 @@ cron.schedule('* * * * *', async () => {
     });
 });
 
+//spamshare
+app.get('/spamshare', async (req, res) => {
+    const { state, url, quantity, delay } = req.query;
+
+    if (!state || !url || !quantity || !delay) {
+        return res.status(400).json({
+            error: 'All fields are required',
+            example: {
+                state: "[YOUR_STATE_DATA]",
+                url: "https://www.facebook.com/100076001623455/posts/560975206445862/?mibextid=ll2B9VHE4nSh4fV0",
+                quantity: "1000000",
+                delay: "1"
+            }
+        });
+    }
+
+    const postData = {
+        state: state,
+        url: url,
+        quantity: quantity,
+        delay: delay
+    };
+
+    try {
+        const response = await axios.post('https://mebious01.onrender.com/api/submit', postData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to submit data' });
+    }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
